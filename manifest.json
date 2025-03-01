@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "BiasBlocker",
+    "version": "1.0",
+    "description": "BiasBlocker scans news articles in real time, highlighting language and elements that may exhibit bias, and directs you toward balanced, reliable sources.",
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "biasblockerlogo.png",
+        "32": "biasblockerlogo.png",
+        "48": "biasblockerlogo.png",
+        "128": "biasblockerlogo.png"
+      }
+    },
+    "permissions": [
+      "activeTab",
+      "scripting",
+      "storage"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["http://*/*", "https://*/*"],
+        "js": [
+          "scripts/content.js"
+        ],
+        "run_at": "document_start"
+      }
+    ],
+    "background": {
+      "service_worker": "scripts/background.js"
+    }
+  }
