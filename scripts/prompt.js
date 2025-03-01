@@ -4,7 +4,7 @@ async function dataToText(data) {
 
 export async function generateContent(prompt) {
 
-const apiKey = "AIzaSyDBVZRlCd83XqSJPRWRaqiTncy3bhWA1Nw"
+const apiKey = "AIzaSyD0ZDzQgY5olkJc1fOLLC9X3BS6CewBj1E"
 
 return fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
   method: "POST",
