@@ -120,7 +120,8 @@
             "*://*.lemonde.fr/*",
             "*://lemonde.fr/*",
             "*://*.straitstimes.com/*",
-            "*://straitstimes.com/*"
+            "*://straitstimes.com/*",
+            "*://instagram.com/*"
       
         ],
         "js": [
