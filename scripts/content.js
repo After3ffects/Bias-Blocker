@@ -108,8 +108,39 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log("Received bias analysis in content script:", biasedDict);
     
     highlightBiasedTerms(biasedDict);
+
+    createTooltipElement();
   }
 });
+
+// Create tooltip element
+function createTooltipElement() {
+  // Remove existing tooltip if any
+  const existingTooltip = document.getElementById('bias-tooltip');
+  if (existingTooltip) {
+    existingTooltip.remove();
+  }
+  
+  // Create tooltip element
+  const tooltip = document.createElement('div');
+  tooltip.id = 'bias-tooltip';
+  tooltip.style.cssText = `
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    max-width: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 10000;
+    display: none;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
+  `;
+  document.body.appendChild(tooltip);
+}
 
 function highlightBiasedTerms(biasedDict) {
   // Get all text nodes in the document body
@@ -155,14 +186,21 @@ function highlightBiasedTerms(biasedDict) {
       span.style.backgroundColor = '#ffff00'; // Yellow highlight
       span.style.color = '#000000';
       span.style.fontWeight = 'bold';
+      span.style.cursor = 'pointer';
       
-      // Add tooltip with bias information
-      const biasInfo = biasedDict[match[0].toLowerCase()];
-      if (typeof biasInfo === 'object' && biasInfo.reason) {
-        span.title = biasInfo.reason;
-      } else if (typeof biasInfo === 'string') {
-        span.title = biasInfo;
-      }
+      // Store the biased term and its info as data attributes
+      const term = match[0];
+      const normalizedTerm = term.toLowerCase();
+      const biasInfo = biasedDict[normalizedTerm] || biasedDict[term];
+      
+      span.dataset.biasTerm = term;
+      span.dataset.biasInfo = typeof biasInfo === 'object' ? 
+        JSON.stringify(biasInfo) : biasInfo.toString();
+      
+      // Add event listeners for showing/hiding the tooltip
+      span.addEventListener('mouseover', showTooltip);
+      span.addEventListener('mouseout', hideTooltip);
+      span.addEventListener('mousemove', moveTooltip);
       
       span.appendChild(document.createTextNode(match[0]));
       fragment.appendChild(span);
@@ -178,6 +216,75 @@ function highlightBiasedTerms(biasedDict) {
     // Replace the original text node with our highlighted version
     node.parentNode.replaceChild(fragment, node);
   });
+}
+
+// Function to show tooltip
+function showTooltip(event) {
+  const tooltip = document.getElementById('bias-tooltip');
+  if (!tooltip) return;
+  
+  let biasInfo = this.dataset.biasInfo;
+  try {
+    // Try to parse as JSON first
+    const parsedInfo = JSON.parse(biasInfo);
+    if (typeof parsedInfo === 'object') {
+      if (parsedInfo.reason) {
+        biasInfo = parsedInfo.reason;
+      } else {
+        // Format the object as HTML
+        biasInfo = Object.entries(parsedInfo)
+          .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+          .join('<br>');
+      }
+    }
+  } catch (e) {
+    // Not JSON, use as is
+  }
+  
+  tooltip.innerHTML = `<strong>${this.dataset.biasTerm}</strong>: ${biasInfo}`;
+  tooltip.style.display = 'block';
+  
+  moveTooltip.call(this, event);
+}
+
+// Function to hide tooltip
+function hideTooltip() {
+  const tooltip = document.getElementById('bias-tooltip');
+  if (tooltip) {
+    tooltip.style.display = 'none';
+  }
+}
+
+// Function to move tooltip with cursor
+function moveTooltip(event) {
+  const tooltip = document.getElementById('bias-tooltip');
+  if (!tooltip) return;
+  
+  // Position the tooltip slightly below and to the right of the cursor
+  const x = event.pageX + 15;
+  const y = event.pageY + 15;
+  
+  // Keep tooltip within viewport
+  const tooltipWidth = tooltip.offsetWidth;
+  const tooltipHeight = tooltip.offsetHeight;
+  const windowWidth = window.innerWidth + window.pageXOffset;
+  const windowHeight = window.innerHeight + window.pageYOffset;
+  
+  let tooltipX = x;
+  let tooltipY = y;
+  
+  // Adjust horizontal position if needed
+  if (x + tooltipWidth > windowWidth) {
+    tooltipX = x - tooltipWidth - 10;
+  }
+  
+  // Adjust vertical position if needed
+  if (y + tooltipHeight > windowHeight) {
+    tooltipY = y - tooltipHeight - 10;
+  }
+  
+  tooltip.style.left = tooltipX + 'px';
+  tooltip.style.top = tooltipY + 'px';
 }
 
 // Helper function to get all text nodes in an element
