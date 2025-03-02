@@ -7,13 +7,85 @@
   <title>BiasBlocker</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0; /* Light gray background */
+            color: #333; /* Dark text for readability */
+            width: 300px; /* Increased width */
+            padding: 10px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #fff; /* White heading */
+            background-color: #D42424; /* Dark red background */
+            padding: 10px;
+            margin: 0 0 10px 0;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        #websiteAttributesDisplay {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+
+        #websiteAttributesDisplay p {
+            margin: 3px 0;
+        }
+
+        #searchButton, #settingsButton {
+            background-color: #D42424; /* Dark red */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 5px; /* Add some spacing */
+        }
+
+        #searchButton:hover, #settingsButton:hover {
+            background-color: #B01F1F; /* Slightly darker red on hover */
+        }
+
+        #attributeError {
+            color: red;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
   <h1>BiasBlocker</h1>
   <p id="status">Analyzing...</p>
   <script type="module" src="scripts/prompt.js"></script>
+  <h1>Website Bias Analysis</h1>
+
+        <div id="websiteAttributesDisplay">
+            <p><strong>News Source:</strong> <span id="newsSourceName"></span></p>
+            <p><strong>Political Leaning:</strong> <span id="politicalLeaning"></span></p>
+            <p><strong>Factuality Rating:</strong> <span id="factualityRating"></span></p>
+            <p><strong>Location:</strong> <span id = "location"></span></p>
+            <p id="attributeError" style="color: red; display: none;">Error retrieving attributes.</p>
+        </div>
+
+        <button id="searchButton">Check out other news sources!</button>
+        <button id = "settingsButton">Settings</button>
+        <script src="scripts/newSearch.js" type="module"></script>
+        <script src="scripts/websiteInfo.js" type="module"></script>
+        <script src="scripts/popup.js" type="module"></script> 
 </body>
 
 </html>
