@@ -217,3 +217,14 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+
+// Add this listener to the bottom of content.js
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.action === "getArticleText") {
+            const text = extractArticleText();
+            sendResponse({ text: text });
+        }
+        return true; // Keep the message channel open for asynchronous response
+    }
+);
