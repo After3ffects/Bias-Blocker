@@ -33,7 +33,7 @@ const unbiasedSources = newsSourceData
 
 // Build a domain filter string using the 'site:' operator for Google Search.
 const domainFilter = unbiasedSources
-  .map(domain => `:${domain}`)
+  .map(domain => `site:${domain}`)
   .join(' OR ');
 
 // Get article text from the content script
