@@ -14,6 +14,20 @@
   <h1>BiasBlocker</h1>
   <p id="status">Analyzing...</p>
   <script type="module" src="scripts/prompt.js"></script>
+  <h1>Website Bias Analysis</h1>
+
+        <div id="websiteAttributesDisplay">
+            <p><strong>News Source:</strong> <span id="newsSourceName"></span></p>
+            <p><strong>Political Leaning:</strong> <span id="politicalLeaning"></span></p>
+            <p><strong>Factuality Rating:</strong> <span id="factualityRating"></span></p>
+            <p id="attributeError" style="color: red; display: none;">Error retrieving attributes.</p>
+        </div>
+
+        <button id="searchButton">Check out other news sources!</button>
+        <script src="scripts/newSearch.js" type="module"></script>
+        <script src="scripts/findNews.js" type="module"></script>
+        <script src="scripts/websiteInfo.js" type="module"></script>
+        <script src="scripts/popup.js" type="module"></script> 
 </body>
 
 </html>
