@@ -27,7 +27,7 @@ function extractArticleText() {
       text = article.innerText;
   }
 
-  console.log("Extracted Content:", text.substring(0, 500) + "..."); // Show snippet
+  //console.log("Extracted Content:", text.substring(0, 500) + "..."); // Show snippet
   return text;
 }
   
@@ -100,3 +100,13 @@ chrome.runtime.onMessage.addListener(
     const articleText = extractArticleText();
     sendArticleText(articleText);
   }
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.type === "biasAnalysisResult") {
+    const biasedDict = message.data;
+    // Now you can use biasedDict in your content script
+    console.log("Received bias analysis in content script:", biasedDict);
+    
+    // Do whatever you need with the data here
+  }
+});
