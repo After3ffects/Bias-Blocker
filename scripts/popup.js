@@ -2,27 +2,27 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("popup.js loaded");
-  
+
   // Get the active tab information
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs && tabs.length > 0) {
       const url = new URL(tabs[0].url);
       const hostname = url.hostname.replace(/^www\./, '');
-      
+
       // Import the module directly in the popup
       import('./newsSources.js').then(module => {
         const { newsSourceData, newsSourceHostnames } = module;
-        
+
         // Find the news source information
-        const sourceHostnameInfo = newsSourceHostnames.find(source => 
+        const sourceHostnameInfo = newsSourceHostnames.find(source =>
           source.Hostname === hostname
         );
-        
+
         if (sourceHostnameInfo) {
-          const sourceAttributes = newsSourceData.find(source => 
+          const sourceAttributes = newsSourceData.find(source =>
             source.ID === sourceHostnameInfo.ID
           );
-          
+
           if (sourceAttributes) {
             displayWebsiteAttributes(sourceAttributes);
           } else {
@@ -39,34 +39,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Set up event listener for search button
-  document.getElementById('searchButton').addEventListener('click', function() {
-    // Import the newsSources module when needed
-    import('./newsSources.js').then(module => {
-      const { newsSourceData } = module;
-      
-      // Find unbiased sources (Political Leaning = 4)
-      const unbiasedSources = newsSourceData
-        .filter(source => source["Political Leaning"] === 4)
-        .map(source => source["News Source Name"])
-        .join(", ");
-      
-      // Open a Google search with unbiased sources
-      const query = "latest news site:" + unbiasedSources.replace(/ /g, "+");
-      window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank");
-    });
-  });
+  // The logic is now handled in newSearch.js
 });
 
 function displayWebsiteAttributes(attributes) {
   console.log("popup.js: displayWebsiteAttributes called with attributes:", attributes);
 
   document.getElementById('newsSourceName').textContent = attributes["News Source Name"] || 'Unknown Source';
-  
+
   // Convert political leaning number to text and apply styling
   const leaningValue = attributes["Political Leaning"];
   let leaningText = 'Unknown';
   let leaningClass = '';
-  
+
   if (leaningValue === 1) {
     leaningText = "Far Left";
     leaningClass = 'tag-left';
@@ -89,26 +74,26 @@ function displayWebsiteAttributes(attributes) {
     leaningText = "Far Right";
     leaningClass = 'tag-right';
   }
-  
+
   // Create a tag element for political leaning
   const leaningElement = document.getElementById('politicalLeaning');
   leaningElement.innerHTML = `<span class="tag ${leaningClass}">${leaningText}</span>`;
-  
+
   // Display factuality rating with stars
   const factualityRating = attributes["Factuality Rating"] || 0;
   document.getElementById('factualityRating').textContent = factualityRating;
-  
+
   // Generate stars based on factuality rating
   const starsContainer = document.getElementById('ratingStars');
   starsContainer.innerHTML = '';
-  
+
   for (let i = 0; i < 5; i++) {
     const star = document.createElement('span');
     star.className = 'star';
     star.textContent = i < factualityRating ? '★' : '☆';
     starsContainer.appendChild(star);
   }
-  
+
   document.getElementById('location').textContent = attributes["Location"] || 'Unknown';
   document.getElementById('attributeError').style.display = 'none';
 }
