@@ -3,27 +3,59 @@ console.log("Content script loaded!");
 const style = document.createElement('style');
 style.textContent = `
 .bias-highlight {
-    background-color: yellow !important;
+    background-color: rgba(212, 36, 36, 0.2);
+    border-bottom: 2px solid #D42424;
     position: relative;
     cursor: pointer;
+    padding: 0 2px;
+    border-radius: 2px;
+    transition: background-color 0.2s ease;
+}
+
+.bias-highlight:hover {
+    background-color: rgba(212, 36, 36, 0.3);
 }
 
 .bias-tooltip {
     visibility: hidden;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
+    background-color: #fff;
+    color: #333;
+    text-align: left;
+    border-radius: 8px;
+    padding: 12px;
     position: absolute;
     z-index: 1000;
-    bottom: 125%;
+    bottom: calc(100% + 10px);
     left: 50%;
-    margin-left: -60px;
+    transform: translateX(-50%);
+    margin-left: 0;
     opacity: 0;
-    transition: opacity 0.3s;
-    width: 200px;
+    transition: opacity 0.3s, visibility 0.3s;
+    width: 280px;
     font-size: 14px;
+    line-height: 1.4;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border: 1px solid #eee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.bias-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #fff transparent transparent transparent;
+}
+
+.bias-tooltip-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #D42424;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
 }
 
 .bias-highlight:hover .bias-tooltip {
@@ -120,12 +152,22 @@ function highlightBias(biasedTerms) {
             highlightSpan.className = 'bias-highlight';
             highlightSpan.textContent = match[0];
             
-            // Add tooltip
+            // Add tooltip with improved structure
             const tooltip = document.createElement('span');
             tooltip.className = 'bias-tooltip';
-            tooltip.textContent = reason;
-            highlightSpan.appendChild(tooltip);
             
+            // Add title to tooltip
+            const tooltipTitle = document.createElement('div');
+            tooltipTitle.className = 'bias-tooltip-title';
+            tooltipTitle.textContent = 'Potential Bias Detected';
+            tooltip.appendChild(tooltipTitle);
+            
+            // Add explanation
+            const tooltipContent = document.createElement('div');
+            tooltipContent.textContent = reason;
+            tooltip.appendChild(tooltipContent);
+            
+            highlightSpan.appendChild(tooltip);
             fragments.appendChild(highlightSpan);
             
             lastIndex = regex.lastIndex;
@@ -215,5 +257,16 @@ chrome.runtime.onMessage.addListener(
                 statusElement.textContent = 'Analysis Failed.';
             }
         }
+    }
+);
+
+// Add this listener to the bottom of content.js
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.action === "getArticleText") {
+            const text = extractArticleText();
+            sendResponse({ text: text });
+        }
+        return true; // Keep the message channel open for asynchronous response
     }
 );
