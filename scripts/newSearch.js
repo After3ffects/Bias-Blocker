@@ -1,5 +1,6 @@
 import { newsSourceData, newsSourceHostnames } from './newsSources.js';
 import { generateContent } from './prompt.js';
+import { getLeaningValue } from './politicalState.js';
 
 // Function to extract article keywords using Gemini
 async function extractArticleKeywords(articleText) {
@@ -22,19 +23,49 @@ async function extractArticleKeywords(articleText) {
   }
 }
 
-// Define a list of unbiased news source domains
-const unbiasedSources = newsSourceData
-  .filter(source => source["Political Leaning"] === 4)
-  .map(source => {
-    const hostnameInfo = newsSourceHostnames.find(hostnameSource => hostnameSource.ID === source.ID);
-    return hostnameInfo ? hostnameInfo.Hostname : null;
-  })
-  .filter(hostname => hostname !== null);
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for the political leaning value
+  const currentLeaning = Number(await getLeaningValue());
+  console.log("currentLeaning in search.js:", currentLeaning);
 
-// Build a domain filter string using the 'site:' operator for Google Search.
-const domainFilter = unbiasedSources
-  .map(domain => `site:${domain}`)
-  .join(' OR ');
+  // Now that we have the currentLeaning, filter the news sources
+  const unbiasedSources = newsSourceData
+    .filter(source => {
+      let targetLeaning;
+      if (currentLeaning < 4) {
+        // If left of center, look for one step more center
+        targetLeaning = currentLeaning + 1;
+      } else {
+        // If right of center, look for one step more center
+        targetLeaning = currentLeaning - 1;
+      }
+      return source["Political Leaning"] === targetLeaning;
+    })
+    .map(source => {
+      const hostnameInfo = newsSourceHostnames.find(hostnameSource => hostnameSource.ID === source.ID);
+      return hostnameInfo ? hostnameInfo.Hostname : null;
+    })
+    .filter(hostname => hostname !== null);
+
+ // Build the domain filter now that unbiasedSources is computed
+ const domainFilter = unbiasedSources
+ .map(domain => `site:${domain}`)
+ .join(' OR ');
+
+console.log("Domain filter:", domainFilter);
+
+const searchButton = document.getElementById('searchButton');
+if (searchButton) {
+ searchButton.addEventListener('click', async () => {
+   const articleText = await getArticleText();
+   const eventKeywords = await extractArticleKeywords(articleText);
+   const query = `${eventKeywords} (${domainFilter})`;
+   const searchUrl = "https://www.google.com/search?q=" + encodeURIComponent(query);
+   window.open(searchUrl, '_blank');
+ });
+}
+});
+
 
 // Get article text from the content script
 async function getArticleText() {
@@ -50,26 +81,3 @@ async function getArticleText() {
     });
   });
 }
-
-// Attach an event listener to the button to perform the filtered search
-document.addEventListener('DOMContentLoaded', () => {
-  const searchButton = document.getElementById('searchButton');
-  if (searchButton) {
-    searchButton.addEventListener('click', async () => {
-      // Get the article text
-      const articleText = await getArticleText();
-
-      // Extract keywords from the article
-      const eventKeywords = await extractArticleKeywords(articleText);
-
-      // Combine the keywords with our domain filter to build the query
-      const query = `${eventKeywords} (${domainFilter})`;
-
-      // Construct the full Google search URL with the encoded query
-      const searchUrl = "https://www.google.com/search?q=" + encodeURIComponent(query);
-
-      // Open the search URL in a new tab
-      window.open(searchUrl, '_blank');
-    });
-  }
-});
