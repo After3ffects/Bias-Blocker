@@ -1,4 +1,6 @@
 // scripts/popup.js
+import { setLeaningValue } from './politicalState.js';
+
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("popup.js loaded");
@@ -51,6 +53,7 @@ function displayWebsiteAttributes(attributes) {
   const leaningValue = attributes["Political Leaning"];
   let leaningText = 'Unknown';
   let leaningClass = '';
+  setLeaningValue(leaningValue);
 
   if (leaningValue === 1) {
     leaningText = "Far Left";
