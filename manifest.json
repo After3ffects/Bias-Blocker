@@ -16,7 +16,8 @@
     "activeTab",
     "scripting",
     "storage",
-    "tabs"
+    "tabs",
+    "https://biasbuster.onrender.com/"
   ],
   "content_scripts": [
     {
