@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "BiasBlocker",
   "version": "1.0",
-  "description": "BiasBlocker scans news articles in real time, highlighting language that may be biased, and directs you towards more balanced sources.",
+  "description": "BiasBlocker scans news articles in real time, highlighting phrases that may be biased, and directs you towards more balanced sources.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
