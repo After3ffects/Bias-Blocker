@@ -10,7 +10,7 @@ async function dataToText(data) {
 
 export async function generateContent(prompt) {
   // Replace with your actual backend URL from Render
-  const BACKEND_API_URL = "https://your-render-app-name.onrender.com/query_gemini";
+  const BACKEND_API_URL = "https://biasbuster.onrender.com/query_gemini";
 
   return fetch(BACKEND_API_URL, {
     method: "POST",
